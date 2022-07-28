@@ -53,7 +53,7 @@ int main(int argc, char** argv)
     tuya_mqtt_context_t* client = &client_instance;
 
     ret = tuya_mqtt_init(client, &(const tuya_mqtt_config_t) {
-        .host = "m2.tuyacn.com",
+        .host = "m1.tuyacn.com",
         .port = 8883,
         .cacert = tuya_cacert_pem,
         .cacert_len = sizeof(tuya_cacert_pem),
