@@ -94,6 +94,10 @@ typedef struct {
 typedef struct {
     const uint8_t* cacert;
     size_t         cacert_len;
+    const uint8_t* client_cert;
+	size_t         client_cert_len;
+	const uint8_t* client_key;
+	size_t         client_key_len;
     const char*    host;
     uint16_t       port;
     uint32_t       timeout_ms;
@@ -135,8 +139,6 @@ struct tuya_mqtt_context {
     bool is_connected : 1;
     bool auto_subscribe_enabled : 1;
 };
-
-int tuya_mqtt_init(tuya_mqtt_context_t* context, const tuya_mqtt_config_t* config);
 
 int tuya_mqtt_init(tuya_mqtt_context_t* context, const tuya_mqtt_config_t* config);
 

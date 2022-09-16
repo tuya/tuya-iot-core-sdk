@@ -463,6 +463,10 @@ int tuya_mqtt_init(tuya_mqtt_context_t* context, const tuya_mqtt_config_t* confi
 	const mqtt_client_config_t mqtt_config = {
 		.cacert = config->cacert,
 		.cacert_len = config->cacert_len,
+		.client_cert = config->client_cert,
+		.client_cert_len = config->client_cert_len,
+		.client_key = config->client_key,
+		.client_key_len = config->client_key_len,
 		.host = config->host,
 		.port = config->port,
 		.keepalive = config->keepalive,
