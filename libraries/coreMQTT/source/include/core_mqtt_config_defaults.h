@@ -105,7 +105,8 @@
  */
 #ifndef MQTT_PINGRESP_TIMEOUT_MS
     /* Wait 0.5 seconds by default for a ping response. */
-    #define MQTT_PINGRESP_TIMEOUT_MS    ( 500U )
+    //TODO:use MQTT_DO_NOT_USE_CUSTOM_CONFIG
+    #define MQTT_PINGRESP_TIMEOUT_MS    ( 1000U * 60U )
 #endif
 
 /**

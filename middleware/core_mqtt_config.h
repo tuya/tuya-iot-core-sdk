@@ -33,11 +33,22 @@
  * If a ping response is not received before this timeout, then
  * #MQTT_ProcessLoop will return #MQTTKeepAliveTimeout.
  */
-#define MQTT_PINGRESP_TIMEOUT_MS      ( 2000U )
+#define MQTT_PINGRESP_TIMEOUT_MS      ( 1000U * 60U )
 
 /**
- * @brief CORE_MQTT_BUFFER_SIZE
+ * @brief CORE_MQTT_RX_BUFFER_SIZE
  */
-#define CORE_MQTT_BUFFER_SIZE         ( 2048U )
+#define CORE_MQTT_RX_BUFFER_SIZE         ( 1024U * 4U)
+
+/**
+ * @brief CORE_MQTT_TX_BUFFER_SIZE
+ */
+#define CORE_MQTT_TX_BUFFER_SIZE         ( 1024U * 4U )
+
+/**
+ * @brief client send MQTT connect packet, and wait connect ack from cloud server 
+ */
+#define MQTT_CONN_ACK_TIMEOUT_MS      ( 1000U * 5U )
+
 
 #endif /* ifndef CORE_MQTT_CONFIG_H_ */

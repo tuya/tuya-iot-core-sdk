@@ -175,6 +175,11 @@ typedef struct MQTTContext
     MQTTFixedBuffer_t networkBuffer;
 
     /**
+     * @brief The buffer used in sending and receiving packets from the network.
+     */
+    MQTTFixedBuffer_t networkBufferTX;
+
+    /**
      * @brief The next available ID for outgoing MQTT packets.
      */
     uint16_t nextPacketId;
@@ -299,6 +304,7 @@ MQTTStatus_t MQTT_Init( MQTTContext_t * pContext,
                         MQTTGetCurrentTimeFunc_t getTimeFunction,
                         MQTTEventCallback_t userCallback,
                         const MQTTFixedBuffer_t * pNetworkBuffer,
+                        const MQTTFixedBuffer_t * pNetworkBufferTX,
                         void * userData );
 /* @[declare_mqtt_init] */
 
