@@ -42,6 +42,10 @@ typedef struct mqtt_client_message {
 typedef struct {
     const uint8_t* cacert;
     size_t         cacert_len;
+    const uint8_t* client_cert;
+	size_t         client_cert_len;
+	const uint8_t* client_key;
+	size_t         client_key_len;
     const char*    host;
     uint16_t       port;
     uint16_t       keepalive;

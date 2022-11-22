@@ -37,16 +37,16 @@ typedef enum {
     THING_TYPE_ACTION_EXECUTE_RSP,
     THING_TYPE_BATCH_REPORT,
     THING_TYPE_BATCH_REPORT_RSP,
-	THING_TYPE_DEVICE_SUB_BIND,
-	THING_TYPE_DEVICE_SUB_BIND_RSP,
-	THING_TYPE_DEVICE_SUB_LOGIN,
-	THING_TYPE_DEVICE_SUB_LOGOUT,
-	THING_TYPE_DEVICE_TOPO_ADD,
-	THING_TYPE_DEVICE_TOPO_ADD_RSP,
-	THING_TYPE_DEVICE_TOPO_DEL,
-	THING_TYPE_DEVICE_TOPO_DEL_RSP,
-	THING_TYPE_DEVICE_TOPO_GET,
-	THING_TYPE_DEVICE_TOPO_GET_RSP,
+	  THING_TYPE_DEVICE_SUB_BIND,
+	  THING_TYPE_DEVICE_SUB_BIND_RSP,
+  	THING_TYPE_DEVICE_SUB_LOGIN,
+	  THING_TYPE_DEVICE_SUB_LOGOUT,
+	  THING_TYPE_DEVICE_TOPO_ADD,
+	  THING_TYPE_DEVICE_TOPO_ADD_RSP,
+	  THING_TYPE_DEVICE_TOPO_DEL,
+	  THING_TYPE_DEVICE_TOPO_DEL_RSP,
+	  THING_TYPE_DEVICE_TOPO_GET,
+	  THING_TYPE_DEVICE_TOPO_GET_RSP,
     THING_TYPE_OTA_FIRMWARE_REPORT,
     THING_TYPE_OTA_ISSUE,
     THING_TYPE_OTA_GET,
@@ -104,6 +104,10 @@ typedef struct {
 typedef struct {
     const uint8_t* cacert;
     size_t         cacert_len;
+    const uint8_t* client_cert;
+	size_t         client_cert_len;
+	const uint8_t* client_key;
+	size_t         client_key_len;
     const char*    host;
     uint16_t       port;
     uint32_t       timeout_ms;
@@ -145,8 +149,6 @@ struct tuya_mqtt_context {
     bool is_connected : 1;
     bool auto_subscribe_enabled : 1;
 };
-
-int tuya_mqtt_init(tuya_mqtt_context_t* context, const tuya_mqtt_config_t* config);
 
 int tuya_mqtt_init(tuya_mqtt_context_t* context, const tuya_mqtt_config_t* config);
 
