@@ -39,6 +39,11 @@ const char tylink_suffix_map[][48] = {
 	"device/topo/delete_response",
 	"device/topo/get",
 	"device/topo/get_response",
+	"ota/firmware/report",
+	"ota/issue",
+	"ota/get",
+	"ota/get_response",
+	"ota/progress/report"
 };
 
 enum {
@@ -856,6 +861,50 @@ int tuyalink_subdevice_topo_get(tuya_mqtt_context_t* context)
 	tuyalink_message_t message = {
 		.type = THING_TYPE_DEVICE_TOPO_GET,
 		.device_id = (char*)context->config.device_id,
+		.ack = false
+	};
+	return tuyalink_message_send(context, &message);
+}
+
+int tuyalink_ota_firmware_report(tuya_mqtt_context_t* context, const char* device_id, const char* data)
+{
+	if(context == NULL || data == NULL) {
+		return OPRT_INVALID_PARM;
+	}
+
+	tuyalink_message_t message = {
+		.type = THING_TYPE_OTA_FIRMWARE_REPORT,
+		.device_id = (char*)device_id,
+		.data_string = (char*)data,
+		.ack = false
+	};
+	return tuyalink_message_send(context, &message);
+}
+
+int tuyalink_ota_get(tuya_mqtt_context_t* context,const char* device_id)
+{
+	if(context == NULL) {
+		return OPRT_INVALID_PARM;
+	}	
+
+	tuyalink_message_t message = {
+		.type = THING_TYPE_OTA_GET,
+		.device_id = (char*)device_id,
+		.data_string = "{}"
+	};
+	return tuyalink_message_send(context, &message);
+}
+
+int tuyalink_ota_progress_report(tuya_mqtt_context_t* context, const char* device_id, const char* data)
+{
+	if(context == NULL || data == NULL) {
+		return OPRT_INVALID_PARM;
+	}
+
+	tuyalink_message_t message = {
+		.type = THING_TYPE_OTA_PROGRESS_REPORT,
+		.device_id = (char*)device_id,
+		.data_string = (char*)data,
 		.ack = false
 	};
 	return tuyalink_message_send(context, &message);
