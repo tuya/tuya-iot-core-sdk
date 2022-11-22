@@ -10,9 +10,9 @@
 #include "mqtt_client_interface.h"
 #include "tuyalink_core.h"
 
-const char productId[] = "gmabzdoevsvl****";
-const char deviceId[] = "6cc87b39279b6fb754****";
-const char deviceSecret[] = "ffad8eb31ae8****";
+const char productId[] = "al0fhe2uqyg6****";
+const char deviceId[] = "264fcea74768270efd****";
+const char deviceSecret[] = "ca690fedd80a****";
 
 tuya_mqtt_context_t client_instance;
 
@@ -21,12 +21,20 @@ void on_connected(tuya_mqtt_context_t* context, void* user_data)
     TY_LOGI("on connected");
 
     /* data model test code */
-    tuyalink_thing_data_model_get(context, NULL);
-    tuyalink_thing_desired_get(context, NULL, "[\"power\"]");
-    tuyalink_thing_property_report(context, NULL, "{\"power\":{\"value\":1234,\"time\":1631708204231}}");
-    tuyalink_thing_property_report_with_ack(context, NULL, "{\"power\":{\"value\":1234,\"time\":1631708204231}}");
-    tuyalink_thing_event_trigger(context, NULL, "{\"eventCode\":\"boom\",\"eventTime\":1626197189630,\"outputParams\":{\"param1\":100}}");
-    tuyalink_thing_batch_report(context, "{\"msgId\":\"45lkj3551234001\",\"time\":1626197189638,\"sys\":{\"ack\":1},\"data\":{\"properties\":{\"power\":{\"value\":11,\"time\":1626197189638}},\"events\":{\"boom\":{\"outputParams\":{\"param1\":\"10\"},\"eventTime\":1626197189001}}}}");
+    /* Initialize device firmware version */
+    tuyalink_ota_firmware_report(context,deviceId,"{\"bizType\":\"INIT\",\"pid\":\"al0fhe2uqyg6pzeb\",\"otaChannel\":[{\"channel\":0,\"version\":\"1.0.0\"},{\"channel\":9,\"version\":\"1.0.0\"}]}");
+    system_sleep(2000);
+    /* Get firmware upgrade */
+    tuyalink_ota_get(context,deviceId);
+    system_sleep(1000);
+    /* Report OTA progress */
+    tuyalink_ota_progress_report(context,deviceId,"{\"channel\":0,\"progress\":98}");
+    system_sleep(1000);
+    /* Report upgrade status */
+    tuyalink_ota_progress_report(context,deviceId,"{\"channel\":0,\"errorCode\":42,\"errorMsg\":\"下载失败,FLASH空间不足\"}");
+    system_sleep(2000);
+    /* Update device firmware version */
+    tuyalink_ota_firmware_report(context,deviceId,"{\"bizType\":\"UPDATE\",\"otaChannel\":[{\"channel\":0,\"version\":\"1.0.6\"},{\"channel\":9,\"version\":\"1.0.0\"}]}");
 }
 
 void on_disconnect(tuya_mqtt_context_t* context, void* user_data)
@@ -38,15 +46,12 @@ void on_messages(tuya_mqtt_context_t* context, void* user_data, const tuyalink_m
 {
     TY_LOGI("on message id:%s, type:%d, code:%d", msg->msgid, msg->type, msg->code);
     switch (msg->type) {
-        case THING_TYPE_MODEL_RSP:
-            TY_LOGI("Model data:%s", msg->data_string);
+        case THING_TYPE_OTA_ISSUE:
+            TY_LOGI("Upgrade data:%s", msg->data_string);
             break;
 
-        case THING_TYPE_PROPERTY_SET:
-            TY_LOGI("property set:%s", msg->data_string);
-            break;
-
-        case THING_TYPE_PROPERTY_REPORT_RSP:
+        case THING_TYPE_OTA_GET_RSP:
+            TY_LOGI("OTA slient upgrade get response:%s", msg->data_string);
             break;
 
         default:
@@ -63,6 +68,7 @@ int main(int argc, char** argv)
 
     ret = tuya_mqtt_init(client, &(const tuya_mqtt_config_t) {
         .host = "m1.tuyacn.com",
+        //.host = "m1-cn.wgine.com",
         .port = 8883,
         .cacert = tuya_cacert_pem,
         .cacert_len = sizeof(tuya_cacert_pem),

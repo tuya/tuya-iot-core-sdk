@@ -47,6 +47,11 @@ typedef enum {
 	THING_TYPE_DEVICE_TOPO_DEL_RSP,
 	THING_TYPE_DEVICE_TOPO_GET,
 	THING_TYPE_DEVICE_TOPO_GET_RSP,
+    THING_TYPE_OTA_FIRMWARE_REPORT,
+    THING_TYPE_OTA_ISSUE,
+    THING_TYPE_OTA_GET,
+    THING_TYPE_OTA_GET_RSP,
+    THING_TYPE_OTA_PROGRESS_REPORT,
     THING_TYPE_MAX,
     THING_TYPE_UNKNOWN,
 } tuyalink_thing_type_t;
@@ -78,7 +83,12 @@ typedef enum {
     ((S) == THING_TYPE_DEVICE_TOPO_DEL_RSP ? "THING_TYPE_DEVICE_TOPO_DEL_RSP":\
     ((S) == THING_TYPE_DEVICE_TOPO_GET ? "THING_TYPE_DEVICE_TOPO_GET":\
     ((S) == THING_TYPE_DEVICE_TOPO_GET_RSP ? "THING_TYPE_DEVICE_TOPO_GET_RSP":\
-"Unknown"))))))))))))))))))))))))))
+    ((S) == THING_TYPE_OTA_FIRMWARE_REPORT ? "THING_TYPE_OTA_FIRMWARE_REPORT":\
+    ((S) == THING_TYPE_OTA_ISSUE ? "THING_TYPE_OTA_ISSUE":\
+    ((S) == THING_TYPE_OTA_GET ? "THING_TYPE_OTA_GET":\
+    ((S) == THING_TYPE_OTA_GET_RSP ? "THING_TYPE_OTA_GET_RSP":\
+    ((S) == THING_TYPE_OTA_PROGRESS_REPORT ? "THING_TYPE_OTA_PROGRESS_REPORT":\
+"Unknown")))))))))))))))))))))))))))))))
 
 typedef struct {
     tuyalink_thing_type_t type;
@@ -173,6 +183,12 @@ int tuyalink_subdevice_topo_add(tuya_mqtt_context_t* context, const char* data);
 int tuyalink_subdevice_topo_delete(tuya_mqtt_context_t* context, const char* data);
 
 int tuyalink_subdevice_topo_get(tuya_mqtt_context_t* context);
+
+int tuyalink_ota_firmware_report(tuya_mqtt_context_t* context, const char* device_id, const char* data);
+
+int tuyalink_ota_get(tuya_mqtt_context_t* context,const char* device_id);
+
+int tuyalink_ota_progress_report(tuya_mqtt_context_t* context, const char* device_id, const char* data);
 
 #ifdef __cplusplus
 }
