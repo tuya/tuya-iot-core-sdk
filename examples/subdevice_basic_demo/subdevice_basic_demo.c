@@ -59,7 +59,7 @@ int main(int argc, char** argv)
         .cacert_len = sizeof(tuya_cacert_pem),
         .device_id = deviceId,
         .device_secret = deviceSecret,
-        .keepalive = 60,
+        .keepalive = 100,
         .timeout_ms = 2000,
         .on_connected = on_connected,
         .on_disconnect = on_disconnect,

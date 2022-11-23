@@ -631,7 +631,7 @@ static int32_t sendPacket( MQTTContext_t * pContext,
     /* Update time of last transmission if the entire packet is successfully sent. */
     if( totalBytesSent > 0 )
     {
-        pContext->lastPacketTime = sendTime;
+        // pContext->lastPacketTime = sendTime;
         LogDebug( ( "Successfully sent packet at time %u.",
                     sendTime ) );
     }
@@ -905,6 +905,7 @@ static MQTTStatus_t sendPublishAcks( MQTTContext_t * pContext,
                                      uint16_t packetId,
                                      MQTTPublishState_t publishState )
 {
+    // tuya_hal_mutex_lock(pContext->mutex);
     MQTTStatus_t status = MQTTSuccess;
     MQTTPublishState_t newState = MQTTStateNull;
     int32_t bytesSent = 0;
@@ -955,6 +956,7 @@ static MQTTStatus_t sendPublishAcks( MQTTContext_t * pContext,
             status = MQTTSendFailed;
         }
     }
+    // tuya_hal_mutex_unlock(pContext->mutex);
 
     return status;
 }
@@ -976,18 +978,18 @@ static MQTTStatus_t handleKeepAlive( MQTTContext_t * pContext )
     if( ( keepAliveMs != 0U ) &&
         ( calculateElapsedTime( now, pContext->lastPacketTime ) > keepAliveMs ) )
     {
-        if( pContext->waitingForPingResp == true )
+        pContext->lastPacketTime = now;
+        status = MQTT_Ping( pContext );
+    }
+
+    if( (status == MQTTSuccess) && (pContext->waitingForPingResp == true) )
+    {
+        /* Has time expired? */
+        if( calculateElapsedTime( pContext->getTime(), pContext->pingReqSendTimeMs ) >
+            MQTT_PINGRESP_TIMEOUT_MS )
         {
-            /* Has time expired? */
-            if( calculateElapsedTime( now, pContext->pingReqSendTimeMs ) >
-                MQTT_PINGRESP_TIMEOUT_MS )
-            {
-                status = MQTTKeepAliveTimeout;
-            }
-        }
-        else
-        {
-            status = MQTT_Ping( pContext );
+            LogInfo( ("MQTTKeepAliveTimeout: %d ms", pContext->getTime() - pContext->pingReqSendTimeMs) );
+            status = MQTTKeepAliveTimeout;
         }
     }
 
@@ -1133,11 +1135,13 @@ static MQTTStatus_t handlePublishAcks( MQTTContext_t * pContext,
 
     if( status == MQTTSuccess )
     {
+        // tuya_hal_mutex_lock(pContext->mutex);
         status = MQTT_UpdateStateAck( pContext,
                                       packetIdentifier,
                                       ackType,
                                       MQTT_RECEIVE,
                                       &publishRecordState );
+        // tuya_hal_mutex_unlock(pContext->mutex);
 
         if( status == MQTTSuccess )
         {
@@ -1217,6 +1221,7 @@ static MQTTStatus_t handleIncomingAck( MQTTContext_t * pContext,
 
             if( ( status == MQTTSuccess ) && ( manageKeepAlive == true ) )
             {
+                LogInfo( ("mqtt ping interval: %d ms", pContext->getTime() - pContext->pingReqSendTimeMs) );
                 pContext->waitingForPingResp = false;
             }
 
@@ -1292,6 +1297,7 @@ static MQTTStatus_t receiveSingleIteration( MQTTContext_t * pContext,
     {
         /* Receive packet. Remaining time is recalculated before calling this
          * function. */
+        remainingTimeMs = 2000;      //2s timeout
         status = receivePacket( pContext, incomingPacket, remainingTimeMs );
     }
 
@@ -1370,12 +1376,12 @@ static MQTTStatus_t sendPublish( MQTTContext_t * pContext,
     assert( pContext != NULL );
     assert( pPublishInfo != NULL );
     assert( headerSize > 0 );
-    assert( pContext->networkBuffer.pBuffer != NULL );
+    assert( pContext->networkBufferTX.pBuffer != NULL );
     assert( !( pPublishInfo->payloadLength > 0 ) || ( pPublishInfo->pPayload != NULL ) );
 
     /* Send header first. */
     bytesSent = sendPacket( pContext,
-                            pContext->networkBuffer.pBuffer,
+                            pContext->networkBufferTX.pBuffer,
                             headerSize );
 
     if( bytesSent < 0 )
@@ -1607,7 +1613,7 @@ static MQTTStatus_t serializePublish( const MQTTContext_t * pContext,
         status = MQTT_SerializePublishHeader( pPublishInfo,
                                               packetId,
                                               remainingLength,
-                                              &( pContext->networkBuffer ),
+                                              &( pContext->networkBufferTX ),
                                               pHeaderSize );
         LogDebug( ( "Serialized PUBLISH header size is %lu.",
                     ( unsigned long ) *pHeaderSize ) );
@@ -1662,6 +1668,7 @@ MQTTStatus_t MQTT_Init( MQTTContext_t * pContext,
                         MQTTGetCurrentTimeFunc_t getTimeFunction,
                         MQTTEventCallback_t userCallback,
                         const MQTTFixedBuffer_t * pNetworkBuffer,
+                        const MQTTFixedBuffer_t * pNetworkBufferTX,
                         void * userData )
 {
     MQTTStatus_t status = MQTTSuccess;
@@ -1707,6 +1714,7 @@ MQTTStatus_t MQTT_Init( MQTTContext_t * pContext,
         pContext->getTime = getTimeFunction;
         pContext->appCallback = userCallback;
         pContext->networkBuffer = *pNetworkBuffer;
+        pContext->networkBufferTX = *pNetworkBufferTX;
         pContext->userData = userData;
 
         /* Zero is not a valid packet ID per MQTT spec. Start from 1. */
@@ -1848,14 +1856,14 @@ MQTTStatus_t MQTT_Subscribe( MQTTContext_t * pContext,
                                           subscriptionCount,
                                           packetId,
                                           remainingLength,
-                                          &( pContext->networkBuffer ) );
+                                          &( pContext->networkBufferTX ) );
     }
 
     if( status == MQTTSuccess )
     {
         /* Send serialized MQTT SUBSCRIBE packet to transport layer. */
         bytesSent = sendPacket( pContext,
-                                pContext->networkBuffer.pBuffer,
+                                pContext->networkBufferTX.pBuffer,
                                 packetSize );
 
         if( bytesSent < 0 )
@@ -1951,6 +1959,7 @@ MQTTStatus_t MQTT_Publish( MQTTContext_t * pContext,
 
 MQTTStatus_t MQTT_Ping( MQTTContext_t * pContext )
 {
+    // tuya_hal_mutex_lock(pContext->mutex);
     int32_t bytesSent = 0;
     MQTTStatus_t status = MQTTSuccess;
     size_t packetSize = 0U;
@@ -2004,6 +2013,7 @@ MQTTStatus_t MQTT_Ping( MQTTContext_t * pContext )
                         bytesSent ) );
         }
     }
+    // tuya_hal_mutex_unlock(pContext->mutex);
 
     return status;
 }
@@ -2043,14 +2053,14 @@ MQTTStatus_t MQTT_Unsubscribe( MQTTContext_t * pContext,
                                             subscriptionCount,
                                             packetId,
                                             remainingLength,
-                                            &( pContext->networkBuffer ) );
+                                            &( pContext->networkBufferTX ) );
     }
 
     if( status == MQTTSuccess )
     {
         /* Send serialized MQTT UNSUBSCRIBE packet to transport layer. */
         bytesSent = sendPacket( pContext,
-                                pContext->networkBuffer.pBuffer,
+                                pContext->networkBufferTX.pBuffer,
                                 packetSize );
 
         if( bytesSent < 0 )
@@ -2169,7 +2179,7 @@ MQTTStatus_t MQTT_ProcessLoop( MQTTContext_t * pContext,
             elapsedTimeMs = calculateElapsedTime( pContext->getTime(),
                                                   entryTimeMs );
 
-            if( elapsedTimeMs > timeoutMs )
+            if( elapsedTimeMs >= timeoutMs )
             {
                 break;
             }

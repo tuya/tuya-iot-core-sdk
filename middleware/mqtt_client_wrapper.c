@@ -11,7 +11,8 @@ typedef struct {
     mqtt_client_config_t config;
     MQTTContext_t mqclient;
     NetworkContext_t network;
-    uint8_t mqttbuffer[CORE_MQTT_BUFFER_SIZE];
+    uint8_t rxbuffer[CORE_MQTT_RX_BUFFER_SIZE];
+    uint8_t txbuffer[CORE_MQTT_TX_BUFFER_SIZE];
 } mqtt_client_context_t;
 
 static void core_mqtt_library_callback( struct MQTTContext* pContext,
@@ -88,6 +89,22 @@ void mqtt_client_free(void* client)
     system_free(client);
 }
 
+//mm sleep set 2000ms.
+//mm wakeup set 5ms.
+//tls connect set 5ms.
+//tls disconnect set 2000ms.
+void mqtt_set_select_timeout(void* client, int timeout)
+{
+    if (NULL == client || 0 == timeout) {
+        log_error("invalid param client:%p timeout%d", client, timeout);
+        return;
+    }
+
+    mqtt_client_context_t* context = (mqtt_client_context_t*)client;
+    context->network.tlsConnectParams.timeout_ms = timeout;
+    context->config.timeout_ms = timeout;
+}
+
 mqtt_client_status_t mqtt_client_init(void* client, const mqtt_client_config_t* config)
 {
     mqtt_client_context_t* context = (mqtt_client_context_t*)client;
@@ -127,16 +144,21 @@ mqtt_client_status_t mqtt_client_init(void* client, const mqtt_client_config_t* 
     transport.recv = (TransportRecv_t)network_tls_read;
 
     /* Fill the values for network buffer. */
-    MQTTFixedBuffer_t network_buffer;
-    network_buffer.size = CORE_MQTT_BUFFER_SIZE;
-    network_buffer.pBuffer = context->mqttbuffer;
+    MQTTFixedBuffer_t network_buffer_rx;
+    network_buffer_rx.size = CORE_MQTT_RX_BUFFER_SIZE;
+    network_buffer_rx.pBuffer = context->rxbuffer;
+
+    MQTTFixedBuffer_t network_buffer_tx;
+    network_buffer_tx.size = CORE_MQTT_TX_BUFFER_SIZE;
+    network_buffer_tx.pBuffer = context->txbuffer;
 
     /* Initialize MQTT library. */
     mqtt_status = MQTT_Init( &context->mqclient,
                              &transport,
                              system_ticks,
                              core_mqtt_library_callback,
-                             &network_buffer,
+                             &network_buffer_rx,
+                             &network_buffer_tx,
 							 context );
 
     if( mqtt_status != MQTTSuccess ) {
@@ -170,6 +192,7 @@ mqtt_client_status_t mqtt_client_connect(void* client)
 
     bool pSessionPresent = false;
 
+    // tuya_hal_mutex_lock(context->mqclient.mutex);
     /* Send MQTT CONNECT packet to broker. */
     mqtt_status = MQTT_Connect( &context->mqclient,
         &(const MQTTConnectInfo_t){
@@ -185,6 +208,7 @@ mqtt_client_status_t mqtt_client_connect(void* client)
         NULL, 
         context->config.timeout_ms, 
         &pSessionPresent );
+    // tuya_hal_mutex_unlock(context->mqclient.mutex);
     if (MQTTSuccess != mqtt_status) {
         log_error("mqtt connect err: %s(%d)", MQTT_Status_strerror(mqtt_status), mqtt_status);
         context->network.disconnect(&context->network);
@@ -205,12 +229,14 @@ mqtt_client_status_t mqtt_client_disconnect(void* client)
 {
     mqtt_client_context_t* context = (mqtt_client_context_t*)client;
     MQTTStatus_t mqtt_status;
-
+#ifdef MQTT_SEND_DISCONNECT_PACKET
+    tuya_hal_mutex_lock(context->mqclient.mutex);
     mqtt_status = MQTT_Disconnect(&context->mqclient);
     if (MQTTSuccess != mqtt_status) {
         log_error("mqtt disconnect err: %s(%d)", MQTT_Status_strerror(mqtt_status), mqtt_status);
     }
-
+    tuya_hal_mutex_unlock(context->mqclient.mutex);
+#endif
     context->network.disconnect(&context->network);
 
     if(context->config.on_disconnected) {
@@ -224,6 +250,7 @@ uint16_t mqtt_client_subscribe(void* client, const char* topic, uint8_t qos)
 {
     mqtt_client_context_t* context = (mqtt_client_context_t*)client;
     MQTTStatus_t mqtt_status;
+    // tuya_hal_mutex_lock(context->mqclient.mutex);
 
     uint16_t msgid = MQTT_GetPacketId( &context->mqclient );
 
@@ -235,6 +262,7 @@ uint16_t mqtt_client_subscribe(void* client, const char* topic, uint8_t qos)
                                   },
                                   1,
                                   msgid );
+    // tuya_hal_mutex_unlock(context->mqclient.mutex);
 
     if( mqtt_status != MQTTSuccess ) {
         log_error( "Failed to send SUBSCRIBE packet to broker with error = %s.", MQTT_Status_strerror( mqtt_status ) );
@@ -248,6 +276,7 @@ uint16_t mqtt_client_unsubscribe(void* client, const char* topic, uint8_t qos)
 {
     mqtt_client_context_t* context = (mqtt_client_context_t*)client;
     MQTTStatus_t mqtt_status;
+    // tuya_hal_mutex_lock(context->mqclient.mutex);
 
     uint16_t msgid = MQTT_GetPacketId( &context->mqclient );
 
@@ -259,6 +288,7 @@ uint16_t mqtt_client_unsubscribe(void* client, const char* topic, uint8_t qos)
                                     },
                                     1,
                                     msgid );
+    // tuya_hal_mutex_unlock(context->mqclient.mutex);
 
     if( mqtt_status != MQTTSuccess ) {
         log_error( "Failed to send SUBSCRIBE packet to broker with error = %s.", MQTT_Status_strerror( mqtt_status ) );
@@ -272,7 +302,7 @@ uint16_t mqtt_client_publish(void* client, const char* topic, const uint8_t* pay
 {
     mqtt_client_context_t* context = (mqtt_client_context_t*)client;
     MQTTStatus_t mqtt_status;
-
+    // tuya_hal_mutex_lock(context->mqclient.mutex);
     uint16_t msgid = MQTT_GetPacketId( &context->mqclient );
 
     mqtt_status = MQTT_Publish( &context->mqclient,
@@ -284,7 +314,7 @@ uint16_t mqtt_client_publish(void* client, const char* topic, const uint8_t* pay
                                     .payloadLength = length
                                 },
                                 msgid);
-
+    // tuya_hal_mutex_unlock(context->mqclient.mutex);
     if (MQTTSuccess != mqtt_status) {
         return 0;
     }
