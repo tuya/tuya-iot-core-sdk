@@ -35,6 +35,13 @@ void on_connected(tuya_mqtt_context_t* context, void* user_data)
     system_sleep(2000);
     /* Update device firmware version */
     tuyalink_ota_firmware_report(context,deviceId,"{\"bizType\":\"UPDATE\",\"otaChannel\":[{\"channel\":0,\"version\":\"1.0.6\"},{\"channel\":9,\"version\":\"1.0.0\"}]}");
+    
+    system_sleep(2000);
+    /* NTP */
+    tuyalink_time_get(context,"{\"bizType\":\"NTP\",\"dst\":1670232110835}");
+
+    /* DST */
+    tuyalink_time_get(context,"{\"bizType\":\"DST\",\"timezoneId\":\"asia/shanghai\"}");
 }
 
 void on_disconnect(tuya_mqtt_context_t* context, void* user_data)
@@ -52,6 +59,10 @@ void on_messages(tuya_mqtt_context_t* context, void* user_data, const tuyalink_m
 
         case THING_TYPE_OTA_GET_RSP:
             TY_LOGI("OTA slient upgrade get response:%s", msg->data_string);
+            break;
+        
+        case THING_TYPE_EXT_TIME_RESPONSE:
+            TY_LOGI("Time response:%s", msg->data_string);
             break;
 
         default:
