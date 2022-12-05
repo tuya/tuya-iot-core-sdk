@@ -44,7 +44,7 @@ const char tylink_suffix_map[][48] = {
 	"ota/get",
 	"ota/get_response",
 	"ota/progress/report",
-	"ext/time/request",
+	"ext/time/request"
 };
 
 enum {

@@ -89,9 +89,10 @@ typedef enum {
     ((S) == THING_TYPE_OTA_ISSUE ? "THING_TYPE_OTA_ISSUE":\
     ((S) == THING_TYPE_OTA_GET ? "THING_TYPE_OTA_GET":\
     ((S) == THING_TYPE_OTA_GET_RSP ? "THING_TYPE_OTA_GET_RSP":\
+    ((S) == THING_TYPE_OTA_PROGRESS_REPORT ? "THING_TYPE_OTA_PROGRESS_REPORT":\
     ((S) == THING_TYPE_EXT_TIME_REQUEST ? "THING_TYPE_EXT_TIME_REQUEST":\
     ((S) == THING_TYPE_EXT_TIME_RESPONSE ? "THING_TYPE_EXT_TIME_RESPONSE":\
-"Unknown"))))))))))))))))))))))))))))))))
+"Unknown")))))))))))))))))))))))))))))))))
 
 typedef struct {
     tuyalink_thing_type_t type;
