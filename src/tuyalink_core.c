@@ -43,7 +43,8 @@ const char tylink_suffix_map[][48] = {
 	"ota/issue",
 	"ota/get",
 	"ota/get_response",
-	"ota/progress/report"
+	"ota/progress/report",
+	"ext/time/request"
 };
 
 enum {
@@ -264,10 +265,10 @@ int tuya_link_thing_message_parse(const char* topic, const char* payload, int pa
 
 	size_t topic_length = strlen(topic);
 
-	if (string_find_count(topic, '/') < 4) {
-		TY_LOGE("topic format error!");	
-		return OPRT_INVALID_PARM;
-	}
+	// if (string_find_count(topic, '/') < 4) {
+	// 	TY_LOGE("topic format error!");	
+	// 	return OPRT_INVALID_PARM;
+	// }
 
 	if (memcmp(topic, "tylink/", 7) != 0) {
 		TY_LOGE("topic prefix error!");
@@ -904,6 +905,21 @@ int tuyalink_ota_progress_report(tuya_mqtt_context_t* context, const char* devic
 	tuyalink_message_t message = {
 		.type = THING_TYPE_OTA_PROGRESS_REPORT,
 		.device_id = (char*)device_id,
+		.data_string = (char*)data,
+		.ack = false
+	};
+	return tuyalink_message_send(context, &message);
+}
+
+int tuyalink_time_get(tuya_mqtt_context_t* context, const char* data)
+{
+	if(context == NULL || data == NULL) {
+		return OPRT_INVALID_PARM;
+	}
+
+	tuyalink_message_t message = {
+		.type = THING_TYPE_EXT_TIME_REQUEST,
+		.device_id = (char*)context->config.device_id,
 		.data_string = (char*)data,
 		.ack = false
 	};

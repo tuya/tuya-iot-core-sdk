@@ -52,6 +52,8 @@ typedef enum {
     THING_TYPE_OTA_GET,
     THING_TYPE_OTA_GET_RSP,
     THING_TYPE_OTA_PROGRESS_REPORT,
+    THING_TYPE_EXT_TIME_REQUEST,
+    THING_TYPE_EXT_TIME_RESPONSE,
     THING_TYPE_MAX,
     THING_TYPE_UNKNOWN,
 } tuyalink_thing_type_t;
@@ -88,7 +90,9 @@ typedef enum {
     ((S) == THING_TYPE_OTA_GET ? "THING_TYPE_OTA_GET":\
     ((S) == THING_TYPE_OTA_GET_RSP ? "THING_TYPE_OTA_GET_RSP":\
     ((S) == THING_TYPE_OTA_PROGRESS_REPORT ? "THING_TYPE_OTA_PROGRESS_REPORT":\
-"Unknown")))))))))))))))))))))))))))))))
+    ((S) == THING_TYPE_EXT_TIME_REQUEST ? "THING_TYPE_EXT_TIME_REQUEST":\
+    ((S) == THING_TYPE_EXT_TIME_RESPONSE ? "THING_TYPE_EXT_TIME_RESPONSE":\
+"Unknown")))))))))))))))))))))))))))))))))
 
 typedef struct {
     tuyalink_thing_type_t type;
@@ -191,6 +195,8 @@ int tuyalink_ota_firmware_report(tuya_mqtt_context_t* context, const char* devic
 int tuyalink_ota_get(tuya_mqtt_context_t* context,const char* device_id);
 
 int tuyalink_ota_progress_report(tuya_mqtt_context_t* context, const char* device_id, const char* data);
+
+int tuyalink_time_get(tuya_mqtt_context_t* context, const char* data);
 
 #ifdef __cplusplus
 }
