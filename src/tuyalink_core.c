@@ -45,7 +45,15 @@ const char tylink_suffix_map[][48] = {
 	"ota/get_response",
 	"ota/progress/report",
 	"ext/time/request",
-	"ext/time/response"
+	"ext/time/response",
+	"ext/file/upload/request",
+	"ext/file/upload/response",
+	"ext/file/download/request",
+	"ext/file/download/response",
+	"ext/config/get",
+	"ext/config/get_response",
+	"channel/raw/up",
+	"channel/raw/down"
 };
 
 enum {
@@ -920,6 +928,66 @@ int tuyalink_time_get(tuya_mqtt_context_t* context, const char* data)
 
 	tuyalink_message_t message = {
 		.type = THING_TYPE_EXT_TIME_REQUEST,
+		.device_id = (char*)context->config.device_id,
+		.data_string = (char*)data,
+		.ack = false
+	};
+	return tuyalink_message_send(context, &message);
+}
+
+int tuyalink_file_upload(tuya_mqtt_context_t* context, const char* data)
+{
+	if(context == NULL || data == NULL) {
+		return OPRT_INVALID_PARM;
+	}
+
+	tuyalink_message_t message = {
+		.type = THING_TYPE_EXT_FILE_UPLOAD_REQUEST,
+		.device_id = (char*)context->config.device_id,
+		.data_string = (char*)data,
+		.ack = false
+	};
+	return tuyalink_message_send(context, &message);
+}
+
+int tuyalink_file_download(tuya_mqtt_context_t* context, const char* data)
+{
+	if(context == NULL || data == NULL) {
+		return OPRT_INVALID_PARM;
+	}
+
+	tuyalink_message_t message = {
+		.type = THING_TYPE_EXT_FILE_DOWNLOAD_REQUEST,
+		.device_id = (char*)context->config.device_id,
+		.data_string = (char*)data,
+		.ack = false
+	};
+	return tuyalink_message_send(context, &message);
+}
+
+int tuyalink_remote_config_get(tuya_mqtt_context_t* context, const char* data)
+{
+	if(context == NULL || data == NULL) {
+		return OPRT_INVALID_PARM;
+	}
+
+	tuyalink_message_t message = {
+		.type = THING_TYPE_EXT_CONFIG_GET,
+		.device_id = (char*)context->config.device_id,
+		.data_string = (char*)data,
+		.ack = false
+	};
+	return tuyalink_message_send(context, &message);
+}
+
+int tuyalink_raw_up(tuya_mqtt_context_t* context, const char* data)
+{
+	if(context == NULL || data == NULL) {
+		return OPRT_INVALID_PARM;
+	}
+
+	tuyalink_message_t message = {
+		.type = THING_TYPE_CHANNEL_RAW_UP,
 		.device_id = (char*)context->config.device_id,
 		.data_string = (char*)data,
 		.ack = false
