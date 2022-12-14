@@ -54,6 +54,16 @@ typedef enum {
     THING_TYPE_OTA_PROGRESS_REPORT,
     THING_TYPE_EXT_TIME_REQUEST,
     THING_TYPE_EXT_TIME_RESPONSE,
+    THING_TYPE_EXT_CONFIG_GET,
+    THING_TYPE_EXT_CONFIG_GET_RSP,
+    THING_TYPE_EXT_FILE_UPLOAD_REQUEST,
+    THING_TYPE_EXT_FILE_UPLOAD_RESPONSE,
+    THING_TYPE_EXT_FILE_DOWNLOAD_REQUEST,
+    THING_TYPE_EXT_FILE_DOWNLOAD_RESPONSE,
+    THING_TYPE_CHANNEL_RAW_UP,
+    THING_TYPW_CHANNEL_RAW_DOWN,
+    THING_TYPE_CHANNEL_RPC_REQUEST,
+    THING_TYPE_CHANNEL_RPC_RESPONSE,
     THING_TYPE_MAX,
     THING_TYPE_UNKNOWN,
 } tuyalink_thing_type_t;
@@ -92,7 +102,17 @@ typedef enum {
     ((S) == THING_TYPE_OTA_PROGRESS_REPORT ? "THING_TYPE_OTA_PROGRESS_REPORT":\
     ((S) == THING_TYPE_EXT_TIME_REQUEST ? "THING_TYPE_EXT_TIME_REQUEST":\
     ((S) == THING_TYPE_EXT_TIME_RESPONSE ? "THING_TYPE_EXT_TIME_RESPONSE":\
-"Unknown")))))))))))))))))))))))))))))))))
+    ((S) == THING_TYPE_EXT_CONFIG_GET ? "THING_TYPE_EXT_CONFIG_GET":\
+    ((S) == THING_TYPE_EXT_CONFIG_GET_RSP ? "THING_TYPE_EXT_CONFIG_GET_RSP":\
+    ((S) == THING_TYPE_EXT_FILE_UPLOAD_REQUEST ? "THING_TYPE_EXT_FILE_UPLOAD_REQUEST":\
+    ((S) == THING_TYPE_EXT_FILE_UPLOAD_RESPONSE ? "THING_TYPE_EXT_FILE_UPLOAD_RESPONSE":\
+    ((S) == THING_TYPE_EXT_FILE_DOWNLOAD_REQUEST ? "THING_TYPE_EXT_FILE_DOWNLOAD_REQUEST":\
+    ((S) == THING_TYPE_EXT_FILE_DOWNLOAD_RESPONSE ? "THING_TYPE_EXT_FILE_DOWNLOAD_RESPONSE":\
+    ((S) == THING_TYPE_CHANNEL_RAW_UP ? "THING_TYPE_CHANNEL_RAW_UP":\
+    ((S) == THING_TYPW_CHANNEL_RAW_DOWN ? "THING_TYPW_CHANNEL_RAW_DOWN":\
+    ((S) == THING_TYPE_CHANNEL_RPC_REQUEST ? "THING_TYPE_CHANNEL_RPC_REQUEST":\
+    ((S) == THING_TYPE_CHANNEL_RPC_RESPONSE ? "THING_TYPE_CHANNEL_RPC_RESPONSE":\
+"Unknown")))))))))))))))))))))))))))))))))))))))))))
 
 typedef struct {
     tuyalink_thing_type_t type;
@@ -197,6 +217,16 @@ int tuyalink_ota_get(tuya_mqtt_context_t* context,const char* device_id);
 int tuyalink_ota_progress_report(tuya_mqtt_context_t* context, const char* device_id, const char* data);
 
 int tuyalink_time_get(tuya_mqtt_context_t* context, const char* data);
+
+int tuyalink_remote_config_get(tuya_mqtt_context_t* context, const char* data);
+
+int tuyalink_file_upload(tuya_mqtt_context_t* context, const char* data);
+
+int tuyalink_file_download(tuya_mqtt_context_t* context, const char* data);
+
+int tuyalink_raw_up(tuya_mqtt_context_t* context, const char* data);
+
+int tuyalink_rpc_call(tuya_mqtt_context_t* context, const char* data);
 
 #ifdef __cplusplus
 }
