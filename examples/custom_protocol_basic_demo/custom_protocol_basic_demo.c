@@ -10,9 +10,9 @@
 #include "mqtt_client_interface.h"
 #include "tuyalink_core.h"
 
-const char productId[] = "whmr4w7i";
-const char deviceId[] = "26b3198330e98b0105diwg";
-const char deviceSecret[] = "df55e992168af8a7";
+const char productId[] = "whmr****";
+const char deviceId[] = "26b3198330e98b0105****";
+const char deviceSecret[] = "df55e992168a****";
 
 tuya_mqtt_context_t client_instance;
 

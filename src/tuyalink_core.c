@@ -53,7 +53,9 @@ const char tylink_suffix_map[][48] = {
 	"ext/config/get",
 	"ext/config/get_response",
 	"channel/raw/up",
-	"channel/raw/down"
+	"channel/raw/down",
+	"channel/rpc/request",
+	"channel/rpc/response"
 };
 
 enum {
@@ -402,7 +404,11 @@ static void mqtt_client_message_cb(void* client, uint16_t msgid, const mqtt_clie
 	TY_LOGD("\r\nrecv message TopicName:%s, payload len:%d", msg->topic, msg->length);
 	TY_LOGD("payload:%.*s", msg->length, msg->payload);
 	mqtt_subscribe_message_distribute(context, msgid, msg);
-
+	/* Not parse topic:tylink/${deviceId}/channel/raw/down */
+	if (strstr(msg->topic, "channel/raw/down") != NULL)
+	{
+		return;
+	}
 	/* IoT core message parse */
 	tuyalink_message_t out_message;
 	memset(&out_message, 0, sizeof(tuyalink_message_t));
@@ -988,6 +994,21 @@ int tuyalink_raw_up(tuya_mqtt_context_t* context, const char* data)
 
 	tuyalink_message_t message = {
 		.type = THING_TYPE_CHANNEL_RAW_UP,
+		.device_id = (char*)context->config.device_id,
+		.data_string = (char*)data,
+		.ack = false
+	};
+	return tuyalink_message_send(context, &message);
+}
+
+int tuyalink_rpc_call(tuya_mqtt_context_t* context, const char* data)
+{
+	if(context == NULL || data == NULL) {
+		return OPRT_INVALID_PARM;
+	}
+
+	tuyalink_message_t message = {
+		.type = THING_TYPE_CHANNEL_RPC_REQUEST,
 		.device_id = (char*)context->config.device_id,
 		.data_string = (char*)data,
 		.ack = false

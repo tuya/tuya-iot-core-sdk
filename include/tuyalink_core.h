@@ -62,6 +62,8 @@ typedef enum {
     THING_TYPE_EXT_FILE_DOWNLOAD_RESPONSE,
     THING_TYPE_CHANNEL_RAW_UP,
     THING_TYPW_CHANNEL_RAW_DOWN,
+    THING_TYPE_CHANNEL_RPC_REQUEST,
+    THING_TYPE_CHANNEL_RPC_RESPONSE,
     THING_TYPE_MAX,
     THING_TYPE_UNKNOWN,
 } tuyalink_thing_type_t;
@@ -108,7 +110,9 @@ typedef enum {
     ((S) == THING_TYPE_EXT_FILE_DOWNLOAD_RESPONSE ? "THING_TYPE_EXT_FILE_DOWNLOAD_RESPONSE":\
     ((S) == THING_TYPE_CHANNEL_RAW_UP ? "THING_TYPE_CHANNEL_RAW_UP":\
     ((S) == THING_TYPW_CHANNEL_RAW_DOWN ? "THING_TYPW_CHANNEL_RAW_DOWN":\
-"Unknown")))))))))))))))))))))))))))))))))))))))))
+    ((S) == THING_TYPE_CHANNEL_RPC_REQUEST ? "THING_TYPE_CHANNEL_RPC_REQUEST":\
+    ((S) == THING_TYPE_CHANNEL_RPC_RESPONSE ? "THING_TYPE_CHANNEL_RPC_RESPONSE":\
+"Unknown")))))))))))))))))))))))))))))))))))))))))))
 
 typedef struct {
     tuyalink_thing_type_t type;
@@ -221,6 +225,8 @@ int tuyalink_file_upload(tuya_mqtt_context_t* context, const char* data);
 int tuyalink_file_download(tuya_mqtt_context_t* context, const char* data);
 
 int tuyalink_raw_up(tuya_mqtt_context_t* context, const char* data);
+
+int tuyalink_rpc_call(tuya_mqtt_context_t* context, const char* data);
 
 #ifdef __cplusplus
 }
