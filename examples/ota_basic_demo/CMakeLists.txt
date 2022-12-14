@@ -1,4 +1,4 @@
-set( DEMO_NAME "custom_protocol_basic_demo" )
+set( DEMO_NAME "ota_basic_demo" )
 
 # Demo target.
 add_executable(
