@@ -10,6 +10,8 @@
 set( LINK_SDK_SOURCES
      ${CMAKE_CURRENT_LIST_DIR}/src/tuyalink_core.c
      ${CMAKE_CURRENT_LIST_DIR}/src/cipher_wrapper.c
+     ${CMAKE_CURRENT_LIST_DIR}/src/iotdns.c
+     ${CMAKE_CURRENT_LIST_DIR}/src/tuya_endpoint.c
 )
 
 # Public Include directories.

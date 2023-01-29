@@ -9,10 +9,11 @@
 #include "system_interface.h"
 #include "mqtt_client_interface.h"
 #include "tuyalink_core.h"
+#include "tuya_endpoint.h"
 
-const char productId[] = "al0fhe2uqyg6****";
-const char deviceId[] = "264fcea74768270efd****";
-const char deviceSecret[] = "ca690fedd80a****";
+const char productId[] = "al0fhe2uqyg6pzeb";
+const char deviceId[] = "264fcea74768270efdcer6";
+const char deviceSecret[] = "ca690fedd80a1a03";
 
 tuya_mqtt_context_t client_instance;
 
@@ -21,6 +22,9 @@ void on_connected(tuya_mqtt_context_t* context, void* user_data)
     TY_LOGI("on connected");
 
     /* data model test code */
+    tuya_endpoint_region_regist_set("AY","pro");
+    tuya_endpoint_update_auto_region();
+
     /* Initialize device firmware version */
     tuyalink_ota_firmware_report(context,deviceId,"{\"bizType\":\"INIT\",\"pid\":\"al0fhe2uqyg6pzeb\",\"otaChannel\":[{\"channel\":0,\"version\":\"1.0.0\"},{\"channel\":9,\"version\":\"1.0.0\"}]}");
     system_sleep(2000);
