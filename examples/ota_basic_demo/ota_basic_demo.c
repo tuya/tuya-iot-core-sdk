@@ -22,7 +22,9 @@ void on_connected(tuya_mqtt_context_t* context, void* user_data)
     TY_LOGI("on connected");
 
     /* data model test code */
+    /* Set region regist */
     tuya_endpoint_region_regist_set("AY","pro");
+    /* Update endpoint CA certificate */
     tuya_endpoint_update_auto_region();
 
     /* Initialize device firmware version */
