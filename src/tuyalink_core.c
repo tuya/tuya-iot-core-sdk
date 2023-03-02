@@ -5,6 +5,7 @@
 
 #include "tuya_log.h"
 #include "tuya_error_code.h"
+#include "tuya_cloud_types.h"
 #include "system_interface.h"
 #include "mqtt_client_interface.h"
 
@@ -55,7 +56,13 @@ const char tylink_suffix_map[][48] = {
 	"channel/raw/up",
 	"channel/raw/down",
 	"channel/rpc/request",
-	"channel/rpc/response"
+	"channel/rpc/response",
+	"device/tag/report",
+	"device/tag/report_response",
+	"device/tag/get",
+	"device/tag/get_response",
+	"device/tag/delete",
+	"device/tag/delete_response",
 };
 
 enum {
@@ -1009,6 +1016,51 @@ int tuyalink_rpc_call(tuya_mqtt_context_t* context, const char* data)
 
 	tuyalink_message_t message = {
 		.type = THING_TYPE_CHANNEL_RPC_REQUEST,
+		.device_id = (char*)context->config.device_id,
+		.data_string = (char*)data,
+		.ack = false
+	};
+	return tuyalink_message_send(context, &message);
+}
+
+int tuyalink_tag_report(tuya_mqtt_context_t* context, const char* data)
+{
+	if(context == NULL || data == NULL) {
+		return OPRT_INVALID_PARM;
+	}
+
+	tuyalink_message_t message = {
+		.type = THING_TYPE_DEVICE_TAG_REPORT,
+		.device_id = (char*)context->config.device_id,
+		.data_string = (char*)data,
+		.ack = false
+	};
+	return tuyalink_message_send(context, &message);
+}
+
+int tuyalink_tag_get(tuya_mqtt_context_t* context, const char* data)
+{
+	if(context == NULL || data == NULL) {
+		return OPRT_INVALID_PARM;
+	}
+
+	tuyalink_message_t message = {
+		.type = THING_TYPE_DEVICE_TAG_GET,
+		.device_id = (char*)context->config.device_id,
+		.data_string = (char*)data,
+		.ack = false
+	};
+	return tuyalink_message_send(context, &message);
+}
+
+int tuyalink_tag_delete(tuya_mqtt_context_t* context, const char* data)
+{
+	if(context == NULL || data == NULL) {
+		return OPRT_INVALID_PARM;
+	}
+
+	tuyalink_message_t message = {
+		.type = THING_TYPE_DEVICE_TAG_DELETE,
 		.device_id = (char*)context->config.device_id,
 		.data_string = (char*)data,
 		.ack = false

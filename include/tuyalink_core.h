@@ -64,6 +64,12 @@ typedef enum {
     THING_TYPW_CHANNEL_RAW_DOWN,
     THING_TYPE_CHANNEL_RPC_REQUEST,
     THING_TYPE_CHANNEL_RPC_RESPONSE,
+    THING_TYPE_DEVICE_TAG_REPORT,
+    THING_TYPE_DEVICE_TAG_REPORT_RESPONSE,
+    THING_TYPE_DEVICE_TAG_GET,
+    THING_TYPE_DEVICE_TAG_GET_RESPONSE,
+    THING_TYPE_DEVICE_TAG_DELETE,
+    THING_TYPE_DEVICE_TAG_DELETE_RESPONSE,
     THING_TYPE_MAX,
     THING_TYPE_UNKNOWN,
 } tuyalink_thing_type_t;
@@ -112,7 +118,13 @@ typedef enum {
     ((S) == THING_TYPW_CHANNEL_RAW_DOWN ? "THING_TYPW_CHANNEL_RAW_DOWN":\
     ((S) == THING_TYPE_CHANNEL_RPC_REQUEST ? "THING_TYPE_CHANNEL_RPC_REQUEST":\
     ((S) == THING_TYPE_CHANNEL_RPC_RESPONSE ? "THING_TYPE_CHANNEL_RPC_RESPONSE":\
-"Unknown")))))))))))))))))))))))))))))))))))))))))))
+    ((S) == THING_TYPE_DEVICE_TAG_REPORT ? "THING_TYPE_DEVICE_TAG_REPORT":\
+    ((S) == THING_TYPE_DEVICE_TAG_REPORT_RESPONSE ? "THING_TYPE_DEVICE_TAG_REPORT_RESPONSE":\
+    ((S) == THING_TYPE_DEVICE_TAG_GET ? "THING_TYPE_DEVICE_TAG_GET":\
+    ((S) == THING_TYPE_DEVICE_TAG_GET_RESPONSE ? "THING_TYPE_DEVICE_TAG_GET_RESPONSE":\
+    ((S) == THING_TYPE_DEVICE_TAG_DELETE ? "THING_TYPE_DEVICE_TAG_DELETE":\
+    ((S) == THING_TYPE_DEVICE_TAG_DELETE_RESPONSE ? "THING_TYPE_DEVICE_TAG_DELETE_RESPONSE":\
+"Unknown")))))))))))))))))))))))))))))))))))))))))))))))))
 
 typedef struct {
     tuyalink_thing_type_t type;
@@ -227,6 +239,12 @@ int tuyalink_file_download(tuya_mqtt_context_t* context, const char* data);
 int tuyalink_raw_up(tuya_mqtt_context_t* context, const char* data);
 
 int tuyalink_rpc_call(tuya_mqtt_context_t* context, const char* data);
+
+int tuyalink_tag_report(tuya_mqtt_context_t* context, const char* data);
+
+int tuyalink_tag_get(tuya_mqtt_context_t* context, const char* data);
+
+int tuyalink_tag_delete(tuya_mqtt_context_t* context, const char* data);
 
 #ifdef __cplusplus
 }
