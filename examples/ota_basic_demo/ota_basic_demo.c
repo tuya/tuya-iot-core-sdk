@@ -27,6 +27,16 @@ void on_connected(tuya_mqtt_context_t* context, void* user_data)
     /* Update endpoint CA certificate */
     tuya_endpoint_update_auto_region();
 
+    /* device tag report*/
+    tuyalink_tag_report(context,"[{\"key\":\"device_code\",\"value\":\"dhj23hj34h2jk1h3jk21hk\"},{\"key\":\"switch_001\",\"value\":\"true\"}]");
+    system_sleep(1000);
+    /* device tag get*/
+    tuyalink_tag_get(context,"[\"device_code\", \"switch_001\"]");
+    system_sleep(1000);
+    /* device tag delete*/
+    tuyalink_tag_delete(context,"[\"switch_001\"]");
+    system_sleep(1000);
+
     /* Initialize device firmware version */
     tuyalink_ota_firmware_report(context,deviceId,"{\"bizType\":\"INIT\",\"pid\":\"al0fhe2uqyg6pzeb\",\"otaChannel\":[{\"channel\":0,\"version\":\"1.0.0\"},{\"channel\":9,\"version\":\"1.0.0\"}]}");
     system_sleep(2000);
@@ -69,6 +79,18 @@ void on_messages(tuya_mqtt_context_t* context, void* user_data, const tuyalink_m
         
         case THING_TYPE_EXT_TIME_RESPONSE:
             TY_LOGI("Time response:%s", msg->data_string);
+            break;
+
+        case THING_TYPE_DEVICE_TAG_REPORT_RESPONSE:
+            TY_LOGI("Tag report response:%s", msg->data_string);
+            break;
+
+        case THING_TYPE_DEVICE_TAG_GET_RESPONSE:
+            TY_LOGI("Tag get response:%s", msg->data_string);
+            break;
+
+         case THING_TYPE_DEVICE_TAG_DELETE_RESPONSE:
+            TY_LOGI("Tag delete response:%s", msg->data_string);
             break;
 
         default:

@@ -65,6 +65,8 @@ const char tylink_suffix_map[][48] = {
 	"device/tag/delete_response",
 };
 
+const char* DEVICE_CODE="device_code";
+
 enum {
 	TUYA_STATE_UNINIT = 0,
 	TUYA_STATE_IDLE,
