@@ -1,6 +1,6 @@
 /*
 tuya_cloud_types.h
-Copyright(C),2018-2020, 涂鸦科技 www.tuya.comm
+Copyright(C),2018-2023, 涂鸦科技 www.tuya.comm
 */
 
 #ifndef TUYA_CLOUD_TYPES_H

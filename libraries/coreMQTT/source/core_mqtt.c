@@ -1836,7 +1836,6 @@ MQTTStatus_t MQTT_Subscribe( MQTTContext_t * pContext,
                                                               pSubscriptionList,
                                                               subscriptionCount,
                                                               packetId );
-
     if( status == MQTTSuccess )
     {
         /* Get the remaining length and packet size.*/
