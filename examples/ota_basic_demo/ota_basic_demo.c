@@ -11,9 +11,9 @@
 #include "tuyalink_core.h"
 #include "tuya_endpoint.h"
 
-const char productId[] = "al0fhe2uqyg6pzeb";
-const char deviceId[] = "264fcea74768270efdcer6";
-const char deviceSecret[] = "ca690fedd80a1a03";
+const char productId[] = "al0fhe2uqyg6****";
+const char deviceId[] = "264fcea74768270efd****";
+const char deviceSecret[] = "ca690fedd80a****";
 
 tuya_mqtt_context_t client_instance;
 
